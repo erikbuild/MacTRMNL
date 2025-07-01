@@ -1,4 +1,14 @@
 
+/*
+ * mactrmnl.c
+ * 
+ * A Classic Mac OS application that connects to a server, receives a 1-bit BMP image,
+ * and displays it in a fullscreen window. This code is designed to run on System 6.0.8 and later with MacTCP support.
+ * It uses the MacTCP API to establish a TCP connection, receive BMP data, and draw it on the screen.
+ * 
+ * Written by Erik Reynolds & Rockwell Schrock
+ * 2025-07-01
+ */
 #include <QuickDraw.h>
 #include <Windows.h>
 #include <Files.h>
