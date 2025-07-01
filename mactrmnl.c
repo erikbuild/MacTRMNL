@@ -25,34 +25,8 @@
 #include <MacTCP.h>
 #include <AddressXlation.h>
 
-#define kBMPFileName "\pimage.bmp"
-#define kServerIP "10.0.1.26"
-#define kServerPort 1337
 #define kRcvBufferSize 8192
 #define kMaxBMPSize 65536L
-
-// BMP header structures
-typedef struct {
-    unsigned short bfType;
-    unsigned long  bfSize;
-    unsigned short bfReserved1;
-    unsigned short bfReserved2;
-    unsigned long  bfOffBits;
-} BITMAPFILEHEADER;
-
-typedef struct {
-    unsigned long  biSize;
-    long           biWidth;
-    long           biHeight;
-    unsigned short biPlanes;
-    unsigned short biBitCount;
-    unsigned long  biCompression;
-    unsigned long  biSizeImage;
-    long           biXPelsPerMeter;
-    long           biYPelsPerMeter;
-    unsigned long  biClrUsed;
-    unsigned long  biClrImportant;
-} BITMAPINFOHEADER;
 
 // TCP globals
 StreamPtr tcpStream = nil;
@@ -201,14 +175,11 @@ OSErr ReceiveBMPData(StreamPtr stream, Ptr *bmpData, long *dataSize) {
 }
 
 void Draw1BitBMPFromData(WindowPtr win, Ptr bmpData, long dataSize, Boolean centerImage) {
-    BITMAPFILEHEADER fileHeader;
-    BITMAPINFOHEADER infoHeader;
     int row, col;
     unsigned char *pixelData;
     int width, height, rowSize;
     int i;
     Rect destRect;
-    Rect pixelRect;
     unsigned char *headerBytes;
     unsigned char *infoBytes;
     long pixelOffset;
@@ -357,6 +328,7 @@ void CleanupTCP(void) {
     }
 }
 
+// Main entry point
 void main(void) {
     Rect winRect;
     EventRecord event;
@@ -366,6 +338,11 @@ void main(void) {
     ip_addr serverIP;
     Ptr bmpData = nil;
     long dataSize;
+    struct hostInfo hostInfoRec;
+    
+    int serverPort; // I want to get this from a settings splash screen in the future
+    char *ipString = "10.0.1.26"; // Replace with your server IP or hostname
+    // I want to get this from a settings splash screen in the future
     
     InitGraf(&qd.thePort);
     InitFonts();
@@ -399,11 +376,17 @@ void main(void) {
     ShowWindow(mainWindow);
     
     // Convert IP address string to ip_addr
-    // 10.0.1.26 = 0x0A000126
-    serverIP = 0x0A00011A;  // 10.0.1.26 in hex
+    err = StrToAddr(ipString, &hostInfoRec, nil, nil);
+    if (err == noErr) {
+        serverIP = hostInfoRec.addr[0];
+    } else {
+        // Fall back to hardcoded value if DNS lookup fails
+        serverIP = 0xC0A8000A;  // 192.168.0.10 in hex
+    }
+    serverPort = 1337;
     
     // Connect to server and receive BMP
-    err = ConnectToServer(serverIP, kServerPort, &tcpStream);
+    err = ConnectToServer(serverIP, serverPort, &tcpStream);
     if (err == noErr) {
         err = ReceiveBMPData(tcpStream, &bmpData, &dataSize);
         if (err == noErr && bmpData != nil) {
