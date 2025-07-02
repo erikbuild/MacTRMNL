@@ -8,9 +8,8 @@ Goal is to get it running on System 6.0.8 and up, but need to tweak some EventHa
 ## Important Notes
 Classic Mac OS wants line endings to be CR (Macintosh style in bbedit 4).  Modern editors usually only allow you to set Linux (LF) or Windows (CRLF) line endings.  I like to open the source fine in bbedit on System 7 to Save-As --> options --> Macintosh line endings, prior to opening in THINK C.
 
-This requires:
-MacTCP.h
-AddressXlation.h
+To build, this requires:
+MacTCP.h (see src/AppleInterfaces/README.md for more info)
 
 ## TODO
 - Pass the logging instance to the auxillary functions (if using)!
