@@ -13,25 +13,6 @@ MacTCP.h
 AddressXlation.h
 
 ## TODO
-- Current Status: Working on reading a BMP from a TCP socket from [schrockwell/mactrmnl-proxy](https://github.com/schrockwell/mactrmnl-proxy)
-
-## Files
-- mactrmnl.c      : Main source file for the application.
-- test1.bmp   : Place your 1-bit BMP file here (this is a test file)
-
-## Instructions
-1. Open THINK C 5.0 and create a new Application project.
-2. Add `mactrmnl.c` to your project.
-3. Build the project.
-4. Place a 1-bit (monochrome, uncompressed) BMP file named `test1.bmp` in the same folder as the compiled application.
-5. Run the application. The window will display the BMP image.
-
-## BMP Requirements
-- Must be 1-bit (monochrome), uncompressed BMP format.
-- Any size supported.
-- The BMP must be named `test1.bmp` and reside in the same directory as the app.
-
-## Usage
-
-- The app opens and displays the BMP image in a fullscreen mode.
-- To quit, press Command-Q.
+- Pass the logging instance to the auxillary functions (if using)!
+- Continue with refactor / clean up.
+- Continue with ResEdit Dialog box?
