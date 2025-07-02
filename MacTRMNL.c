@@ -1,6 +1,6 @@
 /*
  * MacTRMNL: A simple TRMNL Client for Classic Mac OS.
- * mactrmnl.c
+ * MacTRMNL.c
  * 
  * A Classic Mac OS application that connects to a server, receives a 1-bit BMP image,
  * and displays it in a fullscreen window. This code is designed to run on System 6.0.8 and later with MacTCP support.

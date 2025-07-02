@@ -16,3 +16,4 @@ AddressXlation.h
 - Pass the logging instance to the auxillary functions (if using)!
 - Continue with refactor / clean up.
 - Continue with ResEdit Dialog box?
+- USE DITTO to zip up resource fork stuff ala https://github.com/hotdang-ca/MacToolboxBoilerplate/tree/master
