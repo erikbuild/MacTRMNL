@@ -4,5 +4,5 @@ Of course, you can get your own copy from: [The Staticky Apple FTP Developer Mir
 
 Direct link: https://staticky.com/mirrors/ftp.apple.com/developer/Development_Kits/MacTCP.sit.hqx
 
-You need to copy: MacTCP/MacTCP Developer Tools/UniversalInterfaces/MacTCP.h
+You need to copy: MacTCP/MacTCP Developer Tools/Universal Interfaces/MacTCP.h
    into: THINK C 5.0 Folder/Mac #includes/Apple #includes/
