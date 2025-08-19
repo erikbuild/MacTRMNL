@@ -28,13 +28,25 @@ typedef short SInt16;
 typedef unsigned long UInt32;
 typedef long SInt32;
 
-// Define missing constants for Universal Interfaces
+// Define missing constants for Universal Interfaces (only if not already defined)
+#ifndef kCStackBased
 #define kCStackBased 0
+#endif
+#ifndef kPascalStackBased
 #define kPascalStackBased 0
+#endif
+#ifndef STACK_ROUTINE_PARAMETER
 #define STACK_ROUTINE_PARAMETER(n, s) 0
+#endif
+#ifndef SIZE_CODE
 #define SIZE_CODE(s) 0
+#endif
+#ifndef RESULT_SIZE
 #define RESULT_SIZE(s) 0
+#endif
+#ifndef CALLBACK_API_C
 #define CALLBACK_API_C(ret, name) ret (*name)
+#endif
 /* END COMPATIBILITY HACKS FOR MACTCP AND THINK C 5.0 */
 
 #include <MacTCP.h>

@@ -17,11 +17,14 @@
 // Logging functions
 OSErr InitLogging(void) {
     OSErr err;
-    Str255 fileName = "\pMacTrmnl_Log.txt";
+    Str255 fileName;
     long count;
     
+    // Initialize Pascal string
+    strcpy((char*)fileName, "\pMacTrmnl Log");
+    
     // Create and open log file
-    err = Create(fileName, 0, 'TEXT', 'TEXT');
+    err = Create(fileName, 0, 'TEXT', 'ttxt');
     // Ignore error if file already exists
     
     // Open the file

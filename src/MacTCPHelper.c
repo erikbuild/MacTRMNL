@@ -11,7 +11,7 @@
 #include <OSUtils.h>
 #include <Memory.h>
 #include <Devices.h>
-#include <GestaltEqu.h>
+#include <Gestalt.h>
 #include "MacTCPHelper.h"
 #include "logging.h"
 

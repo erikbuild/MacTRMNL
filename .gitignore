@@ -2,3 +2,5 @@
 .DS_Store
 src/AppleInterfaces/*.c
 src/AppleInterfaces/*.h
+emulator/*
+build/*
