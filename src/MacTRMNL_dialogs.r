@@ -57,7 +57,7 @@ resource 'MENU' (130) {
 
 /* Settings Dialog */
 resource 'DLOG' (128) {
-    {40, 40, 200, 400},
+    {40, 40, 280, 440},
     documentProc,
     visible,
     goAway,
@@ -71,59 +71,115 @@ resource 'DLOG' (128) {
 resource 'DITL' (128) {
     {
         /* Item 1: OK button (Start) */
-        {130, 280, 150, 340},
+        {200, 280, 220, 340},
         Button {
             enabled,
             "Start"
         };
         
         /* Item 2: IP Address edit text */
-        {30, 120, 46, 340},
+        {20, 120, 36, 280},
         EditText {
             enabled,
             ""
         };
         
         /* Item 3: Port edit text */
-        {60, 120, 76, 200},
+        {50, 120, 66, 200},
         EditText {
             enabled,
             ""
         };
+
+        /* Item 4: Refresh rate edit text */
+        {80, 120, 96, 200},
+        EditText {
+            enabled,
+            ""
+        };
+
+        /* Item 5: Enable Auto Refresh checkbox */
+        {120, 20, 140, 200},
+        CheckBox {
+            enabled,
+            "Enable Auto Refresh"
+        };
         
-        /* Item 4: Enable Log checkbox */
-        {90, 20, 106, 200},
+        /* Item 6: Enable Log checkbox */
+        {140, 20, 160, 200},
         CheckBox {
             enabled,
             "Enable Log File"
         };
         
-        /* Item 5: Save Settings checkbox */
-        {110, 20, 126, 200},
+        /* Item 7: Save Settings checkbox */
+        {160, 20, 180, 200},
         CheckBox {
             enabled,
             "Save Settings"
         };
         
-        /* Item 6: Exit button */
-        {130, 190, 150, 250},
+        /* Item 8: Exit button */
+        {200, 20, 220, 80},
         Button {
             enabled,
             "Exit"
         };
         
+        /* Item 9: Save button */
+        {200, 200, 220, 260},
+        Button {
+            enabled,
+            "Save"
+        };
+        
         /* Static text: IP Address label */
-        {30, 20, 46, 110},
+        {20, 20, 46, 110},
         StaticText {
             disabled,
             "Server IP:"
         };
         
         /* Static text: Port label */
-        {60, 20, 76, 110},
+        {50, 20, 76, 110},
         StaticText {
             disabled,
             "Port:"
+        };
+
+        /* Static text: Refresh Rate label */
+        {80, 20, 96, 110},
+        StaticText {
+            disabled,
+            "Refresh Rate:"
+        };
+
+        /* Static text: Refresh Rate minutes label */
+        {80, 210, 96, 280},
+        StaticText {
+            disabled,
+            "minutes"
+        };
+
+        /* Static text: Instructions 1 */
+        {120, 200, 140, 380},
+        StaticText {
+            disabled,
+            "CMD+F to toggle fullscreen"
+        };
+
+        /* Static text: Instructions 2 */
+        {140, 200, 160, 380},
+        StaticText {
+            disabled,
+            "CMD+R to force refresh"
+        };
+
+        /* Static text: Instructions 3 */
+        {160, 200, 180, 380},
+        StaticText {
+            disabled,
+            "CMD+P to print screen"
         };
     }
 };

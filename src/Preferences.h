@@ -25,6 +25,8 @@
 typedef struct {
     char ipAddress[20];
     short port;
+    short refreshRate;     // Refresh rate in minutes
+    Boolean autoRefresh; 
     Boolean enableLogFile;
     Boolean saveSettings;
 } PrefsData;

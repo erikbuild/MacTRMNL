@@ -15,6 +15,8 @@
 type 'PREF' {
     pstring[20];        /* IP Address */
     integer;            /* Port */
+    integer;            /* Refresh Rate */
+    boolean;            /* Enable Auto Refresh */
     boolean;            /* Enable Log File */
     boolean;            /* Save Settings */
     align word;         /* Align to word boundary */

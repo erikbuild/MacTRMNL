@@ -62,14 +62,19 @@
 #define kStartButtonID          1   /* OK/Start button */
 #define kIPAddressItem          2   /* IP Address edit text */
 #define kPortItem               3   /* Port edit text */
-#define kEnableLogFileItem      4   /* Enable Log checkbox */
-#define kSaveSettingsItem       5   /* Save Settings checkbox */
-#define kExitButtonID           6   /* Exit button */
+#define kRefreshRateItem            4   /* Refresh Rate edit text */
+#define kAutoRefreshItem        5   /* Auto Refresh checkbox */
+#define kEnableLogFileItem      6   /* Enable Log checkbox */
+#define kSaveSettingsItem       7   /* Save Settings checkbox */
+#define kExitButtonID           8   /* Exit button */
+#define kSaveButtonID           9   /* Save button */
 
 /* Strucs and Enums */
 typedef struct {
     char ipAddress[20];
     long port;
+    long refreshRate;
+    Boolean autoRefresh;
     Boolean enableLogFile;
     Boolean saveSettings;
 } AppSettings;
@@ -631,6 +636,7 @@ void RestoreSettings(DialogPtr settingsDialog) {
 	Handle itemHandle;
     Str255 portString;
     Str255 ipPascalString;
+    Str255 refreshRateString;
 
     LogInfo("Restoring IP address...");
     // Restore IP Address
@@ -650,7 +656,18 @@ void RestoreSettings(DialogPtr settingsDialog) {
         SetDialogItemText(itemHandle, portString);
     }
 
+    LogInfo("Restoring refresh rate...");
+    // Restore Refresh Rate
+    itemHandle = DialogItemGet(settingsDialog, kRefreshRateItem);
+    if (itemHandle != NULL) {
+        NumToString(gSavedSettings.refreshRate, refreshRateString);
+        SetDialogItemText(itemHandle, refreshRateString);
+    }
+
     LogInfo("Restoring checkboxes...");
+    // Restore "Auto Refresh" Option
+    ControlSetValue(settingsDialog, kAutoRefreshItem, gSavedSettings.autoRefresh);
+
     // Restore "Enable Log File" Option
     ControlSetValue(settingsDialog, kEnableLogFileItem, gSavedSettings.enableLogFile);
 
@@ -663,6 +680,7 @@ void SaveSettings(DialogPtr settingsDialog) {
 	Handle itemHandle;
 	Str255 ipAddressString;
     Str255 portString;
+    Str255 refreshRateString;
 
     // Save IP Address
     itemHandle = DialogItemGet(settingsDialog, kIPAddressItem);
@@ -676,6 +694,14 @@ void SaveSettings(DialogPtr settingsDialog) {
 	GetDialogItemText(itemHandle, portString);
 	StringToNum(portString, &gSavedSettings.port);
 
+    // Save Refresh Rate
+    itemHandle = DialogItemGet(settingsDialog, kRefreshRateItem);
+	GetDialogItemText(itemHandle, refreshRateString);
+	StringToNum(refreshRateString, &gSavedSettings.refreshRate);
+
+    // Save "Auto Refresh" Option
+    gSavedSettings.autoRefresh = ControlGetValue(settingsDialog, kAutoRefreshItem);
+
     // Save "Enable Log File" Option
     gSavedSettings.enableLogFile = ControlGetValue(settingsDialog, kEnableLogFileItem);
 
@@ -687,6 +713,8 @@ void SaveSettings(DialogPtr settingsDialog) {
         PrefsData prefs;
         strcpy(prefs.ipAddress, gSavedSettings.ipAddress);
         prefs.port = gSavedSettings.port;
+        prefs.refreshRate = gSavedSettings.refreshRate;
+        prefs.autoRefresh = gSavedSettings.autoRefresh;
         prefs.enableLogFile = gSavedSettings.enableLogFile;
         prefs.saveSettings = gSavedSettings.saveSettings;
         
@@ -706,12 +734,16 @@ void SettingsDialogInit(void) {
         // Successfully loaded preferences
         strcpy(gSavedSettings.ipAddress, prefs.ipAddress);
         gSavedSettings.port = prefs.port;
+        gSavedSettings.refreshRate = prefs.refreshRate;
+        gSavedSettings.autoRefresh = prefs.autoRefresh;
         gSavedSettings.enableLogFile = prefs.enableLogFile;
         gSavedSettings.saveSettings = prefs.saveSettings;
     } else {
         // Use defaults if preferences couldn't be loaded
         strcpy(gSavedSettings.ipAddress, "10.0.1.26"); // Default IP
         gSavedSettings.port = 1337; // Default port
+        gSavedSettings.refreshRate = 10; // Default refresh rate
+        gSavedSettings.autoRefresh = kOn; // Enable auto refresh by default
         gSavedSettings.enableLogFile = kOn; // Enable log file by default
         gSavedSettings.saveSettings = kOn; // Save settings by default
     }
@@ -751,6 +783,12 @@ Boolean HandleSettingsDialog(void) {
             case kExitButtonID:
                 userWantsToConnect = false;
                 dialogDone = true;
+                break;
+            case kSaveButtonID:
+                SaveSettings(settingsDialog); // save without starting
+                LogInfo("Settings saved");
+                // Flash the button or beep to indicate save
+                SysBeep(1);
                 break;
             case kEnableLogFileItem:
             case kSaveSettingsItem:
