@@ -1,0 +1,45 @@
+#! /bin/bash
+
+set -e
+
+if [[ -d "Retro68" ]]; then
+    echo "===> Retro68 directory found"
+else
+    echo "===> Cloning Retro68 repository"
+    git clone git@github.com:autc04/Retro68.git
+    cd Retro68
+    git submodule update --init
+    cd ..
+end
+
+if [[ -f "mpw-gm.zip" ]]; then
+    echo "===> Copying InterfacesAndLibraries"
+    unzip -o mpw-gm.zip
+    cp -r mpw-gm/* Retro68/InterfacesAndLibraries/
+    rm -r __MACOSX/ mpw-gm/
+else
+    echo "===> mpw-gm.zip is required; aborting"
+    exit 1
+fi
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "===> Installing dependencies for macOS"
+    export HOMEBREW_NO_AUTO_UPDATE=1
+    brew install boost@1.85 cmake gmp mpfr libmpc bison texinfo
+    brew link boost@1.85 --force --overwrite
+else
+    echo "===> TODO: Install Linux dependencies"
+    exit 1
+fi
+
+if [ -d "Retro68-build" ]; then
+    echo "===> Retro68 toolchain found"
+else
+    echo "===> Setting up Retro68 toolchain"
+    mkdir Retro68-build
+    cd Retro68-build
+    ../Retro68/build-toolchain.bash
+    cd ..
+fi
+
+echo "===> Setup complete"

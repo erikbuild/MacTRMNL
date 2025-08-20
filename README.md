@@ -17,10 +17,12 @@ MacTRMNL is a Classic Mac OS application that displays images from the TRMNL e-i
     `./convert_line_endings.sh --to-mac src/*.c src/*.h src/*.r`
 
 ### Running the Proxy Server
+
+You will need a device with Developer Edition. Get the device API key from [device settings](https://usetrmnl.com/devices/current/edit).
+
 ```bash
-cd proxy
-export ACCESS_TOKEN="ur-access-token-here"
-ruby trmnappl.rb <ACCESS_TOKEN> [port]
+export ACCESS_TOKEN="ur-device-api-key-here"
+./bin/proxy [port]
 ```
 
 ### Testing the Application

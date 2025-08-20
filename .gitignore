@@ -4,3 +4,5 @@ src/AppleInterfaces/*.c
 src/AppleInterfaces/*.h
 emulator/*
 build/*
+/Retro68*
+mpw-gm.zip
