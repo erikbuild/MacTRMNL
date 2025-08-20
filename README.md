@@ -18,9 +18,8 @@ MacTRMNL is a Classic Mac OS application that displays images from the TRMNL e-i
 
 ### Running the Proxy Server
 ```bash
-cd proxy
-export ACCESS_TOKEN="ur-access-token-here"
-ruby trmnappl.rb <ACCESS_TOKEN> [port]
+export ACCESS_TOKEN="ur-device-api-key-here"
+./bin/proxy [port]
 ```
 
 ### Testing the Application

@@ -121,21 +121,4 @@ class TRMNLProxy
     puts "Error fetching image: #{e.message}"
     nil
   end
-  
-end
-
-# Main execution
-if __FILE__ == $0
-  port = ARGV[0] ? ARGV[0].to_i : TRMNLProxy::DEFAULT_PORT
-  
-  proxy = TRMNLProxy.new(port)
-  
-  begin
-    proxy.start
-  rescue Interrupt
-    puts "\nShutting down server..."
-  rescue => e
-    puts "Server error: #{e.message}"
-    puts e.backtrace.join("\n")
-  end
 end

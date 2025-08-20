@@ -18,6 +18,6 @@ export ACCESS_TOKEN="my-device-api-key"
 Requires netcat (`brew install netcat` on macOS).
 
 ```sh
-nc localhost 31337 > trmnl.bmp
+nc localhost 1337 > trmnl.bmp
 ```
 
