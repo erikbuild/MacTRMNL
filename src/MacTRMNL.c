@@ -48,11 +48,12 @@
 #define kMenuBarID              128
 #define kAppleMenu			    128
 #define kFileMenu			    129
-#define kFileMenuSettingsItem   1
-#define kFileMenuQuitItem       3  /* Item 3 because separator is item 2 */
+#define kFileMenuRefreshItem    1  /* Refresh */
+#define kFileMenuSettingsItem   3  /* Settings (separator is item 2) */
+#define kFileMenuQuitItem       5  /* Quit (separator is item 4) */
 #define	kEditMenu			    130
-#define kAboutDialogID          128
-#define kSettingsDialogID       128
+#define kAboutDialogID          129  /* Alert resource ID */
+#define kSettingsDialogID       128  /* Dialog resource ID */
 
 #define kAboutItem			    1
 #define kQuitItem			    1
@@ -80,10 +81,14 @@ MenuHandle		gAppleMenu;
 MenuHandle		gFileMenu;
 MenuHandle		gEditMenu;
 Boolean		    gEndProgram = false;
+Boolean         gReturnToSettings = false;  /* Flag to return to settings dialog */
+Boolean         gRefreshImage = false;      /* Flag to refresh the image */
 EventRecord	    gTheEvent;
 AppSettings     gSavedSettings;
 Ptr             gBmpData = NULL;
 long            gDataSize = 0;
+StreamPtr       gTcpStream = NULL;          /* Global TCP stream for refresh */
+ip_addr         gServerIP;
 
 // Logging globals
 short gLogFileRefNum = 0;
@@ -107,6 +112,11 @@ void SaveSettings(DialogPtr settingsDialog);
 void SettingsDialogInit(void);
 Boolean HandleSettingsDialog(void);  /* Returns true to connect, false to quit */
 void HandleEvent(void);
+void RefreshImage(void);  /* Download and display new image */
+
+/* External functions from MacTCPHelper */
+extern OSErr DoTCPControl(TCPiopb *pb);
+extern short gTCPDriverRefNum;
 
 /* Draw the 1-bit BitMap from raw data */
 void Draw1BitBMPFromData(WindowPtr win, Ptr bmpData, long dataSize, Boolean centerImage) {
@@ -238,7 +248,6 @@ void Draw1BitBMPFromData(WindowPtr win, Ptr bmpData, long dataSize, Boolean cent
 // Main entry point
 void main(void) {
     OSErr err;
-    ip_addr serverIP;
     long dataSize;
     DialogPtr settingsDialog;
     short dialogItemHit;
@@ -278,8 +287,13 @@ void main(void) {
     }
     LogInfo("MacTCP initialized successfully");
     
-    // Main connection loop - keep trying until successful or user quits
-    while (keepTrying) {
+    // Main application loop - allows returning to settings from image display
+    while (!gEndProgram) {
+        keepTrying = true;
+        gReturnToSettings = false;
+        
+        // Connection loop - keep trying until successful or user quits
+        while (keepTrying && !gEndProgram) {
         // Show the Settings Dialog
         LogInfo("Showing settings dialog...");
         if (!HandleSettingsDialog()) {
@@ -299,7 +313,7 @@ void main(void) {
 
         // Convert IP address string to ip_addr
         LogInfo("Parsing IP address...");
-        err = ParseIPAddress(gSavedSettings.ipAddress, &serverIP);
+        err = ParseIPAddress(gSavedSettings.ipAddress, &gServerIP);
         if (err != noErr) {
             LogError("IP parsing failed. Please check the IP address.");
             SysBeep(10);  // Alert user about parsing failure
@@ -310,15 +324,15 @@ void main(void) {
         
         // Connect to server and receive BMP
         LogInfo("Connecting to server...");
-        err = ConnectToServer(serverIP, gSavedSettings.port, &tcpStream);
+        err = ConnectToServer(gServerIP, gSavedSettings.port, &gTcpStream);
         if (err == noErr) {
             LogInfo("Connected! Receiving data...");
-            err = ReceiveBMPData(tcpStream, &gBmpData, &gDataSize);
+            err = ReceiveBMPData(gTcpStream, &gBmpData, &gDataSize);
             if (err == noErr && gBmpData != NULL && gDataSize > 0) {
                 LogInfo("Data received! Drawing image...");
                 Draw1BitBMPFromData(gMainWindow, gBmpData, gDataSize, true);
                 // Keep gBmpData for redraws
-                keepTrying = false;  // Success! Exit the retry loop
+                keepTrying = false;  // Success! Exit the connection loop
             } else {
                 if (err != noErr) {
                     LogError("Receive function failed");
@@ -337,12 +351,35 @@ void main(void) {
             HideWindow(gMainWindow);  // Hide the window
             // Continue to retry loop
         }
-    }  // End of retry loop
-    
-    // Main Event Loop - only reached after successful connection
-    while (gEndProgram == false) {
-        HandleEvent();
-    }
+        }  // End of connection loop
+        
+        // Main Event Loop - only reached after successful connection
+        if (!gEndProgram && !keepTrying) {  // Successfully connected
+            gEndProgram = false;  // Reset flag
+            while (gEndProgram == false) {
+                HandleEvent();
+                
+                // Check if refresh was requested
+                if (gRefreshImage) {
+                    gRefreshImage = false;  // Reset flag
+                    RefreshImage();
+                }
+            }
+            
+            // Check if user wants to return to settings
+            if (gReturnToSettings) {
+                LogInfo("Returning to settings...");
+                gEndProgram = false;  // Reset flag to continue main loop
+                HideWindow(gMainWindow);  // Hide the display window
+                // Free the BMP data
+                if (gBmpData != NULL) {
+                    DisposePtr(gBmpData);
+                    gBmpData = NULL;
+                    gDataSize = 0;
+                }
+            }
+        }
+    }  // End of main application loop
     
     // Cleanup before exit
     CleanupTCP();
@@ -525,9 +562,14 @@ void HandleAppleMenu(short item) {
 /* File Menu */
 void HandleFileMenu(short item) {
     switch (item) {
+        case kFileMenuRefreshItem:
+            // Refresh the image
+            gRefreshImage = true;
+            break;
         case kFileMenuSettingsItem:
-            // Show settings dialog
-            //HandleDialog();
+            // Return to settings dialog
+            gReturnToSettings = true;
+            gEndProgram = true;  // Exit the current event loop
             break;
         case kFileMenuQuitItem:
             gEndProgram = true;
@@ -718,4 +760,76 @@ Boolean HandleSettingsDialog(void) {
     }
     DisposeDialog(settingsDialog);
     return userWantsToConnect;
+}
+
+/* Refresh Image - download and display new image */
+void RefreshImage(void) {
+    OSErr err;
+    Ptr newBmpData = NULL;
+    long newDataSize = 0;
+    TCPiopb pb;
+    
+    LogInfo("Refreshing image...");
+    
+    // Check if we have a valid connection
+    if (gTcpStream == NULL) {
+        LogError("No active connection for refresh");
+        return;
+    }
+    
+    // Close the existing connection
+    // The server expects one image per connection
+    LogInfo("Closing existing connection...");
+    pb.ioCompletion = NULL;
+    pb.ioCRefNum = gTCPDriverRefNum;
+    pb.csCode = TCPClose;
+    pb.tcpStream = gTcpStream;
+    pb.csParam.close.validityFlags = 0;
+    pb.csParam.close.ulpTimeoutValue = 30;
+    pb.csParam.close.ulpTimeoutAction = 1;
+    
+    DoTCPControl(&pb);
+    
+    // Release the stream
+    pb.ioCompletion = NULL;
+    pb.ioCRefNum = gTCPDriverRefNum;
+    pb.csCode = TCPRelease;
+    pb.tcpStream = gTcpStream;
+    
+    DoTCPControl(&pb);
+    gTcpStream = NULL;
+    
+    // Reconnect to server
+    LogInfo("Reconnecting to server...");
+    err = ConnectToServer(gServerIP, gSavedSettings.port, &gTcpStream);
+    if (err != noErr) {
+        LogError("Refresh failed - couldn't reconnect");
+        SysBeep(10);
+        gTcpStream = NULL;
+        return;
+    }
+    
+    // Receive new BMP data
+    LogInfo("Downloading new image...");
+    err = ReceiveBMPData(gTcpStream, &newBmpData, &newDataSize);
+    if (err == noErr && newBmpData != NULL && newDataSize > 0) {
+        // Free old image data
+        if (gBmpData != NULL) {
+            DisposePtr(gBmpData);
+        }
+        
+        // Update with new data
+        gBmpData = newBmpData;
+        gDataSize = newDataSize;
+        
+        // Redraw the window
+        LogInfo("Drawing new image...");
+        SetPort(gMainWindow);
+        InvalRect(&gMainWindow->portRect);  // Force window update
+        
+        LogInfo("Image refreshed successfully");
+    } else {
+        LogError("Failed to receive new image data");
+        SysBeep(10);
+    }
 }

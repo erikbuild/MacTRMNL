@@ -30,7 +30,9 @@ resource 'MENU' (129) {
     enabled,
     "File",
     {
-        "Settings...", noIcon, "S", noMark, plain;
+        "Refresh", noIcon, "R", noMark, plain;
+        "-", noIcon, noKey, noMark, plain;
+        "Settings...", noIcon, "-", noMark, plain;
         "-", noIcon, noKey, noMark, plain;
         "Quit", noIcon, "Q", noMark, plain;
     }
@@ -128,7 +130,7 @@ resource 'DITL' (128) {
 
 /* About Dialog (Alert) */
 resource 'ALRT' (129) {
-    {40, 40, 150, 400},
+    {40, 40, 200, 400},
     129,  /* DITL resource ID */
     {
         OK, visible, sound1,
@@ -143,7 +145,7 @@ resource 'ALRT' (129) {
 resource 'DITL' (129) {
     {
         /* OK button */
-        {80, 290, 100, 350},
+        {130, 290, 150, 350},
         Button {
             enabled,
             "OK"
@@ -153,11 +155,27 @@ resource 'DITL' (129) {
         {10, 60, 70, 350},
         StaticText {
             disabled,
-            "MacTRMNL 1.0\n"
-            "TRMNL Display Client for Classic Mac OS\n"
-            "© 2025 Erik Reynolds"
+            "MacTRMNL 1.0"
         };
-        
+
+        {35, 60, 70, 350},
+        StaticText {
+            disabled,
+            "TRMNL Display Client for Classic Mac OS"
+        };
+
+        {55, 60, 70, 350},
+        StaticText {
+            disabled,
+            "(c) 2025 Erik Reynolds"
+        };
+                
+        {75, 60, 70, 350},
+        StaticText {
+            disabled,
+            "https://github.com/erikbuild/mactrmnl"
+        };
+
         /* Icon placeholder */
         {10, 10, 42, 42},
         Icon {
