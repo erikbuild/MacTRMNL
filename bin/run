@@ -1,0 +1,10 @@
+#! /bin/bash
+
+set -e
+
+export PATH="$(pwd)/Retro68-build/toolchain/bin:$PATH"
+
+# LaunchAPPL -e shared MacTRMNL.APPL
+
+echo "===> TODO: implement me!"
+exit 1

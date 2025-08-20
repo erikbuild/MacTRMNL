@@ -1,0 +1,6 @@
+#! /bin/bash
+
+set -e
+
+echo "===> TODO: implement me!"
+exit 1
